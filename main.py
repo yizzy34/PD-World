@@ -4,6 +4,8 @@ from state import StateRepresentation
 from action import ActionSpace
 from reward import calculate_reward
 from policy import Policy
+from model import Model
+from evaluation import evaluate_agent
 
 # Define the parameters for the CustomEnvironment
 grid_size_x = 3
@@ -18,6 +20,9 @@ dropoff_cells = [...]  # Define the dropoff cells
 # Create the CustomEnvironment instance
 env = CustomEnvironment(grid_size_x, grid_size_y, grid_size_z, risky_cells, male_initial_pos, female_initial_pos,
                         pickup_cells, dropoff_cells)
+
+# Create the Model instance
+model = Model(env)
 
 # Create the StateRepresentation instance
 state_representation = StateRepresentation()
@@ -70,3 +75,11 @@ policy_type2 = 'PEXPLOIT'
 
 # Run the experiments
 run_experiment(agent1, agent2, n_steps, policy1, policy2)
+
+# Evaluate the agents
+num_evaluation_episodes = 100
+average_reward1, success_rate1 = evaluate_agent(agent1, env, num_evaluation_episodes)
+average_reward2, success_rate2 = evaluate_agent(agent2, env, num_evaluation_episodes)
+
+print(f"Agent 1: Average Reward = {average_reward1}, Success Rate = {success_rate1}")
+print(f"Agent 2: Average Reward = {average_reward2}, Success Rate = {success_rate2}")
