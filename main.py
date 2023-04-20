@@ -49,12 +49,12 @@ def run_experiment(agent1, agent2, n_steps, policy1, policy2):
         current_state2 = agent2.environment.get_state()
 
         # Choose actions based on the policies
-        action1 = policy1.choose_action(current_state1)
-        action2 = policy2.choose_action(current_state2)
+        action1 = policy1.choose_action('F', current_state1)
+        action2 = policy2.choose_action('M', current_state2)
 
-        # Take the actions and get the next states and rewards
-        next_state1, reward1 = agent1.environment.take_action('F', action1)
-        next_state2, reward2 = agent2.environment.take_action('M', action2)
+        # Take the actions and get the next states
+        next_state1, _ = agent1.environment.take_action('F', action1)
+        next_state2, _ = agent2.environment.take_action('M', action2)
 
         # Calculate the rewards using the calculate_reward function
         reward1 = calculate_reward(agent1, current_state1, action1)
@@ -97,4 +97,3 @@ print(f"Agent 2: Average Reward = {average_reward2}, Success Rate = {success_rat
 # Print the final Q-table for agent1 (experiment 1c)
 print("Final Q-table for agent 1 (experiment 1c):")
 print(agent1.q_table)
-

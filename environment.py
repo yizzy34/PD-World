@@ -64,6 +64,17 @@ class CustomEnvironment:
 
         return new_position, reward
 
+    def is_success(self, agent_type):
+        # calculate success criteria based on agent's position and return True or False
+        if agent_type == 'F':
+            return self.state[0][0] == self.grid_size_x // 2 and self.state[0][1] == self.grid_size_y // 2 and \
+                   self.dropoff_cells[(self.grid_size_x // 2, self.grid_size_y // 2, 1)] == self.dropoff_capacity
+        elif agent_type == 'M':
+            return self.state[1][0] == self.grid_size_x // 2 and self.state[1][1] == self.grid_size_y // 2 and \
+                   self.dropoff_cells[(self.grid_size_x // 2, self.grid_size_y // 2, 1)] == self.dropoff_capacity
+        else:
+            raise ValueError("Invalid agent type specified. Expected 'F' or 'M', got {}".format(agent_type))
+
     def _apply_action(self, position, action):
         x, y, z = position
 

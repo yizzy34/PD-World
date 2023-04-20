@@ -2,7 +2,7 @@ import numpy as np
 
 
 class ValueFunction:
-    def __init__(self, n_states, n_actions, alpha=0.1, gamma=0.99):
+    def __init__(self, n_states, n_actions, alpha=0.3, gamma=0.5):
         self.q_table = np.zeros((n_states, n_actions))
         self.alpha = alpha
         self.gamma = gamma

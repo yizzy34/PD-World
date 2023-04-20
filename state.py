@@ -8,13 +8,14 @@ class StateRepresentation:
         return environment_state
 
     def state_to_index(self, state, grid_size_x, grid_size_y, grid_size_z):
-        if type(state) == int:  # If the state is a single integer, convert it to a tuple
+        if isinstance(state, int):  # If the state is a single integer, convert it to a tuple
             state = (state,)
-        elif type(state) == tuple and len(
-                state) == 2:  # If the state is a tuple of two integers, convert it to a tuple of three integers
-            state = (state[0], state[1], 1)
-        elif type(state) != tuple or len(
-                state) != 3:  # If the state is not a tuple of three integers, raise an exception
+        elif isinstance(state, tuple):
+            if len(state) == 2:  # If the state is a tuple of two integers, convert it to a tuple of three integers
+                state = (state[0], state[1], 1)
+            elif len(state) != 3:
+                raise ValueError('Invalid state format: {}'.format(state))
+        else:
             raise ValueError('Invalid state format: {}'.format(state))
 
         female_pos, male_pos = state
