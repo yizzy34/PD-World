@@ -11,11 +11,11 @@ from evaluation import evaluate_agent
 grid_size_x = 3
 grid_size_y = 3
 grid_size_z = 3
-risky_cells = [...]  # Define the risky cells
-male_initial_pos = (1, 1, 1)
-female_initial_pos = (2, 2, 2)
-pickup_cells = [...]  # Define the pickup cells
-dropoff_cells = [...]  # Define the dropoff cells
+risky_cells = [(2, 2, 2), (3, 2, 1)]  # Define the risky cells
+male_initial_pos = (3, 2, 3)
+female_initial_pos = (1, 1, 1)
+pickup_cells = [(2, 2, 1), (3, 3, 2)]  # Define the pickup cells
+dropoff_cells = [(1, 1, 2), (1, 1, 3), (3, 1, 1), (3, 2, 3)]  # Define the dropoff cells
 
 # Create the CustomEnvironment instance
 env = CustomEnvironment(grid_size_x, grid_size_y, grid_size_z, risky_cells, male_initial_pos, female_initial_pos,
