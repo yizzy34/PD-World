@@ -34,12 +34,12 @@ action_space = ActionSpace()
 n_actions = action_space.get_n_actions()
 
 # Create the QLearningAgent instances for the male and female agents
-agent1 = QLearningAgent(env, n_actions=n_actions)
-agent2 = QLearningAgent(env, n_actions=n_actions)
+agent1 = QLearningAgent(env, state_representation, n_actions=n_actions, alpha=0.3, gamma=0.5)
+agent2 = QLearningAgent(env, state_representation, n_actions=n_actions, alpha=0.3, gamma=0.5)
 
-# Create instances of the Policy
-policy1 = Policy(agent1)
-policy2 = Policy(agent2)
+# Create the Policy instances for the male and female agents
+policy1 = Policy(agent1, 'PRANDOM')
+policy2 = Policy(agent2, 'PRANDOM')
 
 
 def run_experiment(agent1, agent2, n_steps, policy1, policy2):
@@ -49,37 +49,52 @@ def run_experiment(agent1, agent2, n_steps, policy1, policy2):
         current_state2 = agent2.environment.get_state()
 
         # Choose actions based on the policies
-        action1 = agent1.choose_action(current_state1, policy1)
-        action2 = agent2.choose_action(current_state2, policy2)
+        action1 = policy1.choose_action(current_state1)
+        action2 = policy2.choose_action(current_state2)
 
         # Take the actions and get the next states and rewards
         next_state1, reward1 = agent1.environment.take_action('F', action1)
         next_state2, reward2 = agent2.environment.take_action('M', action2)
 
         # Calculate the rewards using the calculate_reward function
-        reward1 = calculate_reward('F', current_state1, action1)
-        reward2 = calculate_reward('M', current_state2, action2)
+        reward1 = calculate_reward(agent1, current_state1, action1)
+        reward2 = calculate_reward(agent2, current_state2, action2)
 
         # Update the agents with the new information
         agent1.update(current_state1, action1, reward1, next_state1)
         agent2.update(current_state2, action2, reward2, next_state2)
 
-        # Check if the terminal condition has been reached, and if so, break the loop
-        # ...
 
+# Experiment 1: Running the traditional Q-learning algorithm for 10000 steps
+n_steps = 10000
 
-# Set the number of steps and policy types
-n_steps = 1000
-policy_type1 = 'PEXPLOIT'
-policy_type2 = 'PEXPLOIT'
+# Experiment 1a: PRANDOM for 500 steps
+policy1.set_policy_type('PRANDOM')
+policy2.set_policy_type('PRANDOM')
+run_experiment(agent1, agent2, 500, policy1, policy2)
 
-# Run the experiments
-run_experiment(agent1, agent2, n_steps, policy1, policy2)
+# Experiment 1b: PRANDOM for 9500 more steps
+run_experiment(agent1, agent2, 9500, policy1, policy2)
 
-# Evaluate the agents
+# Experiment 1c: PGREEDY for 9500 more steps
+policy1.set_policy_type('PGREEDY')
+policy2.set_policy_type('PGREEDY')
+run_experiment(agent1, agent2, 9500, policy1, policy2)
+
+# Experiment 1d: PEXPLOIT for 9500 more steps
+policy1.set_policy_type('PEXPLOIT')
+policy2.set_policy_type('PEXPLOIT')
+run_experiment(agent1, agent2, 9500, policy1, policy2)
+
+# Evaluation
 num_evaluation_episodes = 100
 average_reward1, success_rate1 = evaluate_agent(agent1, env, num_evaluation_episodes)
 average_reward2, success_rate2 = evaluate_agent(agent2, env, num_evaluation_episodes)
 
 print(f"Agent 1: Average Reward = {average_reward1}, Success Rate = {success_rate1}")
 print(f"Agent 2: Average Reward = {average_reward2}, Success Rate = {success_rate2}")
+
+# Print the final Q-table for agent1 (experiment 1c)
+print("Final Q-table for agent 1 (experiment 1c):")
+print(agent1.q_table)
+

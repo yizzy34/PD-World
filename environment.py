@@ -13,6 +13,9 @@ class CustomEnvironment:
         self.dropoff_capacity = 5  # Capacity for dropoff cells
         self.state = (self.female_initial_pos, self.male_initial_pos)  # Initialize the environment state
 
+    def get_n_states(self):
+        return self.grid_size_x * self.grid_size_y * self.grid_size_z
+
     def get_state(self):
         return self.state
 
@@ -23,18 +26,18 @@ class CustomEnvironment:
     def take_action(self, agent_type, action):
         # Get the agent's current position
         if agent_type == 'M':
-            current_position = self.male_initial_pos
+            current_position = self.state[1]  # Get male agent's position from the state
         elif agent_type == 'F':
-            current_position = self.female_initial_pos
+            current_position = self.state[0]  # Get female agent's position from the state
 
         # Calculate the new position based on the action
         new_position = self._apply_action(current_position, action)
 
         # Update the agent's position
         if agent_type == 'M':
-            self.male_position = new_position
+            self.state = (self.state[0], new_position)
         elif agent_type == 'F':
-            self.female_position = new_position
+            self.state = (new_position, self.state[1])
 
         # Check if the new_position is a risky cell
         if new_position in self.risky_cells:
@@ -57,7 +60,7 @@ class CustomEnvironment:
             reward = 0
 
         # Update the environment state
-        self.set_state((self.female_position, self.male_position))
+        self.set_state(self.state)  # Update the state using the modified state
 
         return new_position, reward
 

@@ -6,3 +6,18 @@ class StateRepresentation:
         # In this case, we don't need to do any conversion.
         # Simply return the environment_state as it is.
         return environment_state
+
+    def state_to_index(self, state, grid_size_x, grid_size_y, grid_size_z):
+        if type(state) == int:  # If the state is a single integer, convert it to a tuple
+            state = (state,)
+        elif type(state) == tuple and len(
+                state) == 2:  # If the state is a tuple of two integers, convert it to a tuple of three integers
+            state = (state[0], state[1], 1)
+        elif type(state) != tuple or len(
+                state) != 3:  # If the state is not a tuple of three integers, raise an exception
+            raise ValueError('Invalid state format: {}'.format(state))
+
+        female_pos, male_pos = state
+        state_index = ((female_pos[0] - 1) * grid_size_y + female_pos[1] - 1) * grid_size_x * grid_size_z + \
+                      ((male_pos[0] - 1) * grid_size_y + male_pos[1] - 1) * grid_size_z + male_pos[2] - 1
+        return state_index
