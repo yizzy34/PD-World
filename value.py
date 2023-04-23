@@ -1,20 +1,7 @@
-import numpy as np
+def q_Learning_Value_Function(old_q_val, move_reward, next_q_vals, alpha, gamma):
+    max_next_q_val = max(next_q_vals.values())
+    return old_q_val + alpha * (move_reward + gamma * max_next_q_val - old_q_val)
 
 
-class ValueFunction:
-    def __init__(self, n_states, n_actions, alpha=0.3, gamma=0.5):
-        self.q_table = np.zeros((n_states, n_actions))
-        self.alpha = alpha
-        self.gamma = gamma
-
-    def update(self, state, action, reward, next_state):
-        current_q = self.q_table[state][action]
-        max_next_q = np.max(self.q_table[next_state])
-        new_q = current_q + self.alpha * (reward + self.gamma * max_next_q - current_q)
-        self.q_table[state][action] = new_q
-
-    def get_best_action(self, state):
-        return np.argmax(self.q_table[state])
-
-    def get_q_value(self, state, action):
-        return self.q_table[state][action]
+def sarsa_Value_Function(old_q_val, move_reward, next_q_val, alpha, gamma):
+    return old_q_val + alpha * (move_reward + gamma * next_q_val - old_q_val)
