@@ -1,58 +1,143 @@
+
 class Environment:
     def __init__(self):
-        self.environment = [
+        firstLevel = [
             [
-                [{'type': 'normal', 'occupied_by': 'f'}, {'type': 'normal', 'occupied_by': ''}, {'type': 'dropoff', 'occupied_by': '', 'block_count': 0}],
-                [{'type': 'normal', 'occupied_by': ''}, {'type': 'pickup', 'occupied_by': '', 'block_count': 10}, {'type': 'risky', 'occupied_by': ''}],
-                [{'type': 'normal', 'occupied_by': ''}, {'type': 'normal', 'occupied_by': ''}, {'type': 'normal', 'occupied_by': ''}]
+                {'type': 'normal', 'reward': -1, 'occupiedBy': 'f'},
+                {'type': 'normal', 'reward': -1, 'occupiedBy': ''},
+                {'type': 'dropoff', 'reward': +14, 'occupiedBy': '', 'blockCount': 0}
             ],
             [
-                [{'type': 'dropoff', 'occupied_by': '', 'block_count': 0}, {'type': 'normal', 'occupied_by': ''}, {'type': 'normal', 'occupied_by': ''}],
-                [{'type': 'normal', 'occupied_by': ''}, {'type': 'risky', 'occupied_by': ''}, {'type': 'normal', 'occupied_by': ''}],
-                [{'type': 'normal', 'occupied_by': ''}, {'type': 'normal', 'occupied_by': ''}, {'type': 'pickup', 'occupied_by': '', 'block_count': 10}]
+                {'type': 'normal', 'reward': -1, 'occupiedBy': ''},
+                {'type': 'pickup', 'reward': +14, 'occupiedBy': '', 'blockCount': 10},
+                {'type': 'risky', 'reward': -2, 'occupiedBy': ''}
             ],
             [
-                [{'type': 'dropoff', 'occupied_by': '', 'block_count': 0}, {'type': 'normal', 'occupied_by': ''}, {'type': 'normal', 'occupied_by': ''}],
-                [{'type': 'normal', 'occupied_by': ''}, {'type': 'normal', 'occupied_by': ''}, {'type': 'dropoff', 'occupied_by': 'm', 'block_count': 0}],
-                [{'type': 'normal', 'occupied_by': ''}, {'type': 'normal', 'occupied_by': ''}, {'type': 'normal', 'occupied_by': ''}]
+                {'type': 'normal', 'reward': -1, 'occupiedBy': ''},
+                {'type': 'normal', 'reward': -1, 'occupiedBy': ''},
+                {'type': 'normal', 'reward': -1, 'occupiedBy': ''}
             ]
         ]
+        secondLevel = [
+            [
+                {'type': 'dropoff', 'reward': +14, 'occupiedBy': '', 'blockCount': 0},
+                {'type': 'normal', 'reward': -1, 'occupiedBy': ''},
+                {'type': 'normal', 'reward': -1, 'occupiedBy': ''}
+            ],
+            [
+                {'type': 'normal', 'reward': -1, 'occupiedBy': ''},
+                {'type': 'risky', 'reward': -2, 'occupiedBy': ''},
+                {'type': 'normal', 'reward': -1, 'occupiedBy': ''}
+            ],
+            [
+                {'type': 'normal', 'reward': -1, 'occupiedBy': ''},
+                {'type': 'normal', 'reward': -1, 'occupiedBy': ''},
+                {'type': 'pickup', 'reward': +14, 'occupiedBy': '', 'blockCount': 10}
+            ]
+        ]
+        thirdLevel = [
+            [
+                {'type': 'dropoff', 'reward': +14, 'occupiedBy': '', 'blockCount': 0},
+                {'type': 'normal', 'reward': -1, 'occupiedBy': ''},
+                {'type': 'normal', 'reward': -1, 'occupiedBy': ''}
+            ],
+            [
+                {'type': 'normal', 'reward': -1, 'occupiedBy': ''},
+                {'type': 'normal', 'reward': -1, 'occupiedBy': ''},
+                {'type': 'dropoff', 'reward': +14, 'occupiedBy': 'm', 'blockCount': 0}
+            ],
+            [
+                {'type': 'normal', 'reward': -1, 'occupiedBy': ''},
+                {'type': 'normal', 'reward': -1, 'occupiedBy': ''},
+                {'type': 'normal', 'reward': -1, 'occupiedBy': ''}
+            ]
+        ]
+        self.environment = [firstLevel, secondLevel, thirdLevel]
 
-    def move_Agent(self, old_coords, action, agent):
-        self.environment[old_coords[0]][old_coords[1]][old_coords[2]]['occupied_by'] = ''
-        action_moves = {'up': (1, 0, 0), 'down': (-1, 0, 0), 'forward': (0, 1, 0), 'backward': (0, -1, 0),
-                        'right': (0, 0, 1), 'left': (0, 0, -1)}
-        move = action_moves[action]
-        new_coords = [old_coords[i] + move[i] for i in range(3)]
-        self.environment[new_coords[0]][new_coords[1]][new_coords[2]]['occupied_by'] = agent
+    def move_Agent(self, oldCoordinates, action, agent):
+        self.environment[oldCoordinates[0]][oldCoordinates[1]][oldCoordinates[2]]['occupiedBy'] = ''
+        newCoordinates = []
 
-        cell_type = self.environment[new_coords[0]][new_coords[1]][new_coords[2]]['type']
-        if cell_type == 'pickup':
-            self.remove_Pickup_Block(new_coords)
-        elif cell_type == 'dropoff':
-            self.add_Dropoff_Block(new_coords)
+        if action == 'up':
+            self.environment[oldCoordinates[0] + 1][oldCoordinates[1]][oldCoordinates[2]]['occupiedBy'] = agent
+            newCoordinates = [oldCoordinates[0] + 1, oldCoordinates[1], oldCoordinates[2]]
+        elif action == 'down':
+            self.environment[oldCoordinates[0] - 1][oldCoordinates[1]][oldCoordinates[2]]['occupiedBy'] = agent
+            newCoordinates = [oldCoordinates[0] - 1, oldCoordinates[1], oldCoordinates[2]]
+        elif action == 'north':
+            self.environment[oldCoordinates[0]][oldCoordinates[1] + 1][oldCoordinates[2]]['occupiedBy'] = agent
+            newCoordinates = [oldCoordinates[0], oldCoordinates[1] + 1, oldCoordinates[2]]
+        elif action == 'south':
+            self.environment[oldCoordinates[0]][oldCoordinates[1] - 1][oldCoordinates[2]]['occupiedBy'] = agent
+            newCoordinates = [oldCoordinates[0], oldCoordinates[1] - 1, oldCoordinates[2]]
+        elif action == 'east':
+            self.environment[oldCoordinates[0]][oldCoordinates[1]][oldCoordinates[2] + 1]['occupiedBy'] = agent
+            newCoordinates = [oldCoordinates[0], oldCoordinates[1], oldCoordinates[2] + 1]
+        elif action == 'west':
+            self.environment[oldCoordinates[0]][oldCoordinates[1]][oldCoordinates[2] - 1]['occupiedBy'] = agent
+            newCoordinates = [oldCoordinates[0], oldCoordinates[1], oldCoordinates[2] - 1]
+
+        if self.environment[newCoordinates[0]][newCoordinates[1]][newCoordinates[2]]['type'] == 'pickup':
+            self.remove_Pickup_Block(newCoordinates)
+        elif self.environment[newCoordinates[0]][newCoordinates[1]][newCoordinates[2]]['type'] == 'dropoff':
+            self.add_Dropoff_Block(newCoordinates)
+        elif self.environment[newCoordinates[0]][newCoordinates[1]][newCoordinates[2]]['type'] == 'normal':
+            pass
+        elif self.environment[newCoordinates[0]][newCoordinates[1]][newCoordinates[2]]['type'] == 'risky':
+            pass
 
     def remove_Pickup_Block(self, coords):
-        if self.environment[coords[0]][coords[1]][coords[2]]['block_count'] > 0:
-            self.environment[coords[0]][coords[1]][coords[2]]['block_count'] -= 1
+        if self.environment[coords[0]][coords[1]][coords[2]]['blockCount'] > 0:
+            self.environment[coords[0]][coords[1]][coords[2]]['blockCount'] -= 1
 
     def add_Dropoff_Block(self, coords):
-        if self.environment[coords[0]][coords[1]][coords[2]]['block_count'] < 5:
-            self.environment[coords[0]][coords[1]][coords[2]]['block_count'] += 1
+        if self.environment[coords[0]][coords[1]][coords[2]]['blockCount'] < 5:
+            self.environment[coords[0]][coords[1]][coords[2]]['blockCount'] += 1
 
-    def get_Cell_Types(environment, initial_position, actions):
-        cells = {}
-        action_moves = {'up': (1, 0, 0), 'down': (-1, 0, 0), 'forward': (0, 1, 0), 'backward': (0, -1, 0),
-                        'right': (0, 0, 1), 'left': (0, 0, -1)}
-        for action in actions:
-            move = action_moves[action]
-            new_coords = [initial_position[i] + move[i] for i in range(3)]
-            cell = environment[new_coords[0]][new_coords[1]][new_coords[2]]
-            cells[action] = {}
-            cells[action]['type'] = cell['type']
-            cells[action]['coords'] = new_coords
-            if cell['type'] == 'pickup':
-                cells[action]['is_empty'] = cell['block_count'] == 0
-            elif cell['type'] == 'dropoff':
-                cells[action]['is_full'] = cell['block_count'] >= 5
-        return cells
+
+def get_Cell_Types(environment, initial_position, actions):
+    cells = {}
+    for action in actions:
+        match action:
+            case 'up':
+                cells[action] = {}
+                cells[action]['type'] = environment[initial_position[0] + 1][initial_position[1]][initial_position[2]][
+                    'type']
+                cells[action]['coords'] = [initial_position[0] + 1, initial_position[1], initial_position[2]]
+            case 'down':
+                cells[action] = {}
+                cells[action]['type'] = environment[initial_position[0] - 1][initial_position[1]][initial_position[2]][
+                    'type']
+                cells[action]['coords'] = [initial_position[0] - 1, initial_position[1], initial_position[2]]
+            case 'backward':
+                cells[action] = {}
+                cells[action]['type'] = environment[initial_position[0]][initial_position[1] + 1][initial_position[2]][
+                    'type']
+                cells[action]['coords'] = [initial_position[0], initial_position[1] + 1, initial_position[2]]
+            case 'forward':
+                cells[action] = {}
+                cells[action]['type'] = environment[initial_position[0]][initial_position[1] - 1][initial_position[2]][
+                    'type']
+                cells[action]['coords'] = [initial_position[0], initial_position[1] - 1, initial_position[2]]
+            case 'right':
+                cells[action] = {}
+                cells[action]['type'] = environment[initial_position[0]][initial_position[1]][initial_position[2] + 1][
+                    'type']
+                cells[action]['coords'] = [initial_position[0], initial_position[1], initial_position[2] + 1]
+            case 'left':
+                cells[action] = {}
+                cells[action]['type'] = environment[initial_position[0]][initial_position[1]][initial_position[2] - 1][
+                    'type']
+                cells[action]['coords'] = [initial_position[0], initial_position[1], initial_position[2] - 1]
+        coords = cells[action]['coords']
+        if cells[action]['type'] == 'pickup':
+            if environment[coords[0]][coords[1]][coords[2]]['block_count'] > 0:
+                cells[action]['is_empty'] = False
+            else:
+                cells[action]['is_empty'] = True
+        elif cells[action]['type'] == 'dropoff':
+            if environment[coords[0]][coords[1]][coords[2]]['block_count'] < 5:
+                cells[action]['is_full'] = False
+            else:
+                cells[action]['is_full'] = True
+    return cells
