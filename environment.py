@@ -1,94 +1,51 @@
+class Environment:
+    def __init__(self):
+        self.environment = [
+            [
+                [{'type': 'normal', 'occupied_by': 'f'}, {'type': 'normal', 'occupied_by': ''}, {'type': 'dropoff', 'occupied_by': '', 'block_count': 0}],
+                [{'type': 'normal', 'occupied_by': ''}, {'type': 'pickup', 'occupied_by': '', 'block_count': 10}, {'type': 'risky', 'occupied_by': ''}],
+                [{'type': 'normal', 'occupied_by': ''}, {'type': 'normal', 'occupied_by': ''}, {'type': 'normal', 'occupied_by': ''}]
+            ],
+            [
+                [{'type': 'dropoff', 'occupied_by': '', 'block_count': 0}, {'type': 'normal', 'occupied_by': ''}, {'type': 'normal', 'occupied_by': ''}],
+                [{'type': 'normal', 'occupied_by': ''}, {'type': 'risky', 'occupied_by': ''}, {'type': 'normal', 'occupied_by': ''}],
+                [{'type': 'normal', 'occupied_by': ''}, {'type': 'normal', 'occupied_by': ''}, {'type': 'pickup', 'occupied_by': '', 'block_count': 10}]
+            ],
+            [
+                [{'type': 'dropoff', 'occupied_by': '', 'block_count': 0}, {'type': 'normal', 'occupied_by': ''}, {'type': 'normal', 'occupied_by': ''}],
+                [{'type': 'normal', 'occupied_by': ''}, {'type': 'normal', 'occupied_by': ''}, {'type': 'dropoff', 'occupied_by': 'm', 'block_count': 0}],
+                [{'type': 'normal', 'occupied_by': ''}, {'type': 'normal', 'occupied_by': ''}, {'type': 'normal', 'occupied_by': ''}]
+            ]
+        ]
 
-class CustomEnvironment:
-    def __init__(self, grid_size_x, grid_size_y, grid_size_z, risky_cells, male_initial_pos, female_initial_pos,
-                 pickup_cells, dropoff_cells):
-        self.grid_size_x = grid_size_x
-        self.grid_size_y = grid_size_y
-        self.grid_size_z = grid_size_z
-        self.risky_cells = set(risky_cells)
-        self.male_initial_pos = male_initial_pos
-        self.female_initial_pos = female_initial_pos
-        self.pickup_cells = {cell: 10 for cell in pickup_cells}  # Initialize pickup cells with 10 blocks
-        self.dropoff_cells = {cell: 0 for cell in dropoff_cells}  # Initialize dropoff cells with 0 blocks
-        self.dropoff_capacity = 5  # Capacity for dropoff cells
-        self.state = (self.female_initial_pos, self.male_initial_pos)  # Initialize the environment state
+    def move_Agent(self, old_coords, action, agent):
+        self.environment[old_coords[0]][old_coords[1]][old_coords[2]]['occupied_by'] = ''
+        action_moves = {'up': (1, 0, 0), 'down': (-1, 0, 0), 'forward': (0, 1, 0), 'backward': (0, -1, 0),
+                        'right': (0, 0, 1), 'left': (0, 0, -1)}
+        move = action_moves[action]
+        new_coords = [old_coords[i] + move[i] for i in range(3)]
+        self.environment[new_coords[0]][new_coords[1]][new_coords[2]]['occupied_by'] = agent
 
-    def get_n_states(self):
-        return self.grid_size_x * self.grid_size_y * self.grid_size_z
+        cell_type = self.environment[new_coords[0]][new_coords[1]][new_coords[2]]['type']
+        if cell_type == 'pickup':
+            self.remove_Pickup_Block(new_coords)
+        elif cell_type == 'dropoff':
+            self.add_Dropoff_Block(new_coords)
 
-    def get_state(self):
-        return self.state
+    def remove_Pickup_Block(self, coords):
+        if self.environment[coords[0]][coords[1]][coords[2]]['block_count'] > 0:
+            self.environment[coords[0]][coords[1]][coords[2]]['block_count'] -= 1
 
-    def set_state(self, state):
-        self.state = state
-        self.female_pos, self.male_pos = state
+    def add_Dropoff_Block(self, coords):
+        if self.environment[coords[0]][coords[1]][coords[2]]['block_count'] < 5:
+            self.environment[coords[0]][coords[1]][coords[2]]['block_count'] += 1
 
-    def take_action(self, agent_type, action):
-        # Get the agent's current position
-        if agent_type == 'M':
-            current_position = self.state[1]  # Get male agent's position from the state
-        elif agent_type == 'F':
-            current_position = self.state[0]  # Get female agent's position from the state
-
-        # Calculate the new position based on the action
-        new_position = self._apply_action(current_position, action)
-
-        # Update the agent's position
-        if agent_type == 'M':
-            self.state = (self.state[0], new_position)
-        elif agent_type == 'F':
-            self.state = (new_position, self.state[1])
-
-        # Check if the new_position is a risky cell
-        if new_position in self.risky_cells:
-            reward = -2  # Return twice the negative reward for any action in risky cells
-        # Check if the new_position is a pickup cell
-        elif new_position in self.pickup_cells:
-            if self.pickup_cells[new_position] > 0:
-                self.pickup_cells[new_position] -= 1
-                reward = 1  # Reward for picking up a block
-            else:
-                reward = -1  # Penalty for trying to pick up from an empty cell
-        # Check if the new_position is a dropoff cell
-        elif new_position in self.dropoff_cells:
-            if self.dropoff_cells[new_position] < self.dropoff_capacity:
-                self.dropoff_cells[new_position] += 1
-                reward = 1  # Reward for dropping off a block
-            else:
-                reward = -1  # Penalty for trying to drop off at a full cell
-        else:
-            reward = 0
-
-        # Update the environment state
-        self.set_state(self.state)  # Update the state using the modified state
-
-        return new_position, reward
-
-    def is_success(self, agent_type):
-        # calculate success criteria based on agent's position and return True or False
-        if agent_type == 'F':
-            return self.state[0][0] == self.grid_size_x // 2 and self.state[0][1] == self.grid_size_y // 2 and \
-                   self.dropoff_cells[(self.grid_size_x // 2, self.grid_size_y // 2, 1)] == self.dropoff_capacity
-        elif agent_type == 'M':
-            return self.state[1][0] == self.grid_size_x // 2 and self.state[1][1] == self.grid_size_y // 2 and \
-                   self.dropoff_cells[(self.grid_size_x // 2, self.grid_size_y // 2, 1)] == self.dropoff_capacity
-        else:
-            raise ValueError("Invalid agent type specified. Expected 'F' or 'M', got {}".format(agent_type))
-
-    def _apply_action(self, position, action):
-        x, y, z = position
-
-        if action == 'U':
-            z = min(z + 1, self.grid_size_z)
-        elif action == 'D':
-            z = max(z - 1, 1)
-        elif action == 'F':
-            y = min(y + 1, self.grid_size_y)
-        elif action == 'B':
-            y = max(y - 1, 1)
-        elif action == 'L':
-            x = max(x - 1, 1)
-        elif action == 'R':
-            x = min(x + 1, self.grid_size_x)
-
-        return x, y, z
+    def get_Cell_Types(environment, initial_position, actions):
+        cells = {}
+        action_moves = {'up': (1, 0, 0), 'down': (-1, 0, 0), 'forward': (0, 1, 0), 'backward': (0, -1, 0),
+                        'right': (0, 0, 1), 'left': (0, 0, -1)}
+        for action in actions:
+            move = action_moves[action]
+            new_coords = [initial_position[i] + move[i] for i in range(3)]
+            cells[action] = environment[new_coords[0]][new_coords[1]][new_coords[2]]['type']
+        return cells
