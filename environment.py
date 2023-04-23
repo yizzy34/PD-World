@@ -47,5 +47,12 @@ class Environment:
         for action in actions:
             move = action_moves[action]
             new_coords = [initial_position[i] + move[i] for i in range(3)]
-            cells[action] = environment[new_coords[0]][new_coords[1]][new_coords[2]]['type']
+            cell = environment[new_coords[0]][new_coords[1]][new_coords[2]]
+            cells[action] = {}
+            cells[action]['type'] = cell['type']
+            cells[action]['coords'] = new_coords
+            if cell['type'] == 'pickup':
+                cells[action]['is_empty'] = cell['block_count'] == 0
+            elif cell['type'] == 'dropoff':
+                cells[action]['is_full'] = cell['block_count'] >= 5
         return cells
