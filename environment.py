@@ -1,6 +1,5 @@
 class Environment:
     def __init__(self):
-        # Define the three levels of the environment
         first_level = [
             [
                 {'type': 'normal', 'occupied_by': 'f'},
@@ -52,17 +51,12 @@ class Environment:
                 {'type': 'normal', 'occupied_by': ''}
             ]
         ]
-        # Combine the levels into the environment
         self.environment = [first_level, second_level, third_level]
 
     def move_agent(self, old_coords, action, agent, carrying):
-        # Remove the agent from its old position
         self.environment[old_coords[0]][old_coords[1]][old_coords[2]]['occupied_by'] = ''
-        # Initialize an empty list for the new coordinates
         new_coords = []
-        # Update the new coordinates based on the action taken
         match action:
-            # Check the type of the new cell and perform the corresponding action
             case 'up':
                 self.environment[old_coords[0] + 1][old_coords[1]][old_coords[2]]['occupied_by'] = agent
                 new_coords = [old_coords[0] + 1, old_coords[1], old_coords[2]]
@@ -81,7 +75,6 @@ class Environment:
             case 'left':
                 self.environment[old_coords[0]][old_coords[1]][old_coords[2] - 1]['occupied_by'] = agent
                 new_coords = [old_coords[0], old_coords[1], old_coords[2] - 1]
-        # Check the type of the new cell and perform the corresponding action
         match self.environment[new_coords[0]][new_coords[1]][new_coords[2]]['type']:
             case 'pickup':
                 if carrying == False:
@@ -94,26 +87,23 @@ class Environment:
             case 'risky':
                 return False
 
-    # Remove a block from the pickup location if there are any
     def remove_pickup_block(self, coords):
-        if self.environment[coords[0]][coords[1]][coords[2]]['block_count'] > 0:
+        if (self.environment[coords[0]][coords[1]][coords[2]]['block_count'] > 0):
             self.environment[coords[0]][coords[1]][coords[2]]['block_count'] -= 1
             return True
         return False
 
-    # Add a block to the dropoff location if it's not full
     def add_dropoff_block(self, coords):
-        if self.environment[coords[0]][coords[1]][coords[2]]['block_count'] < 5:
+        if (self.environment[coords[0]][coords[1]][coords[2]]['block_count'] < 5):
             self.environment[coords[0]][coords[1]][coords[2]]['block_count'] += 1
             return True
         return False
 
 
 def get_cell_types(environment, initial_position, actions):
-    cells = {} # Initialize an empty dictionary to store the types of cells for each action
-    for action in actions: # Iterate through each action and find the cell types
+    cells = {}
+    for action in actions:
         match action:
-            # Get the coordinates of the new cell and store them in the cells dictionary
             case 'up':
                 cells[action] = {}
                 cells[action]['type'] = environment[initial_position[0] + 1][initial_position[1]][initial_position[2]][
@@ -145,7 +135,6 @@ def get_cell_types(environment, initial_position, actions):
                     'type']
                 cells[action]['coords'] = [initial_position[0], initial_position[1], initial_position[2] - 1]
         coords = cells[action]['coords']
-        # Check if the new cell is a pickup or dropoff location and update the cells dictionary accordingly
         if cells[action]['type'] == 'pickup':
             if environment[coords[0]][coords[1]][coords[2]]['block_count'] > 0:
                 cells[action]['is_empty'] = False
